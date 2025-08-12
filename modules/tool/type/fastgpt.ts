@@ -131,10 +131,25 @@ export const InputSchema = z.object({
     .array(
       z.object({
         label: z.string(),
-        value: z.string()
+        value: z.string(),
+        category: z.string().optional() // 支持分类字段用于联动过滤
       })
     )
     .optional(),
+  // cascade linkage - 支持多种联动方式
+  dependsOn: z.string().optional(), // 依赖的字段key
+  getDependentOptions: z
+    .function(
+      z.tuple([z.string()]), // 接受父字段值作为参数
+      z.array(
+        z.object({
+          label: z.string(),
+          value: z.string(),
+          category: z.string().optional()
+        })
+      )
+    )
+    .optional(), // 根据父字段值获取选项的函数（动态联动）
   // Slider
   markList: z
     .array(
