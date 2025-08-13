@@ -25,7 +25,7 @@ describe('barChart tool', () => {
     const result = await tool({
       title: '堆积销售数据',
       xAxis: ['Q1', 'Q2', 'Q3', 'Q4'],
-      yAxis: ['100,80,60;120,90,70'], // 堆积数据格式
+      yAxis: ['100,80,60,120;90,70,85,110'], // 堆积数据格式：两个系列，每个系列4个数据点
       chartSubType: 'stacked',
       autoOptimize: false,
       showZeroLine: true,
@@ -74,8 +74,8 @@ describe('barChart tool', () => {
     });
 
     expect(result.chartUrl).toMatch(/^https?:\/\//);
-    // 验证barWidth被重置为默认值
-    expect(result.echartsConfig).toContain('"barWidth":0.6');
+    // 验证barWidth被重置为默认值（转换为像素）
+    expect(result.echartsConfig).toContain('"barWidth":"36px"');
   });
 
   it('应该支持手动Y轴范围设置', async () => {

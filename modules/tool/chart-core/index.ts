@@ -67,7 +67,7 @@ export class ChartGenerator {
     const baseOption = this.createBaseOption(title, xAxis, yAxis, chartType, options);
 
     // 处理小范围大数值问题 (散点图和雷达图不适用Y轴优化)
-    if (!['pie', 'radar'].includes(chartType) && options.yAxisRange) {
+    if (!['pie', 'radar', 'scatter'].includes(chartType) && options.yAxisRange) {
       this.applyYAxisOptimization(baseOption, yAxis, options.yAxisRange);
     }
 

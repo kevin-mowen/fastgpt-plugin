@@ -65,6 +65,33 @@
 }
 ```
 
+**使用示例**:
+
+1. **普通柱状图**:
+```typescript
+{
+  title: "销售数据",
+  xAxis: ["产品A", "产品B", "产品C", "产品D"],
+  yAxis: ["120", "180", "150", "200"],
+  chartSubType: "normal",
+  colorScheme: "blue",
+  chartSize: "medium"
+}
+```
+
+2. **堆积柱状图**:
+```typescript
+{
+  title: "季度销售对比",
+  xAxis: ["Q1", "Q2", "Q3", "Q4"],
+  yAxis: ["100,80,60,120;90,70,85,110"], // 分号分隔不同系列，逗号分隔同系列数据
+  chartSubType: "stacked",
+  colorScheme: "green",
+  chartSize: "large"
+}
+```
+> 堆积柱状图的yAxis格式：使用分号(;)分隔不同数据系列，每个系列内用逗号(,)分隔数据点。每个系列的数据点数量必须与xAxis长度一致。
+
 ### 2. 折线图 (lineChart)
 
 **功能特点**:

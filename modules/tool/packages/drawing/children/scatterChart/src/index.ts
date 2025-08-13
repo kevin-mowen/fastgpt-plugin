@@ -60,6 +60,28 @@ export async function tool({
   chartSize,
   legendPosition
 }: z.infer<typeof InputType>): Promise<z.infer<typeof OutputType>> {
+  // 验证数据长度一致性
+  if (xAxis.length !== yAxis.length) {
+    throw new Error(`X轴数据长度(${xAxis.length})与Y轴数据长度(${yAxis.length})不匹配`);
+  }
+
+  // 验证数值有效性
+  const xNumeric = xAxis.map(Number);
+  const yNumeric = yAxis.map(Number);
+
+  if (xNumeric.some((val) => isNaN(val))) {
+    throw new Error('X轴数据必须为有效数字');
+  }
+
+  if (yNumeric.some((val) => isNaN(val))) {
+    throw new Error('Y轴数据必须为有效数字');
+  }
+
+  // 如果有size轴数据，也要验证
+  if (sizeAxis && sizeAxis.length !== xAxis.length) {
+    throw new Error(`气泡大小数据长度(${sizeAxis.length})与坐标数据长度(${xAxis.length})不匹配`);
+  }
+
   const generator = new ScatterChartGenerator();
 
   // 构建Y轴优化配置

@@ -7,7 +7,7 @@ export const InputType = z
     categories: z.union([z.string(), z.array(z.union([z.string(), z.number()]))]),
     values: z.union([z.string(), z.array(z.union([z.string(), z.number()]))]),
     chartSubType: z.string().optional().default('normal'),
-    innerRadius: z.number().optional().default(0.4),
+    innerRadius: z.number().optional(),
     showPercentage: z.boolean().optional().default(true),
     showValue: z.boolean().optional().default(false),
     labelPosition: z.string().optional().default('outside'),
@@ -16,9 +16,14 @@ export const InputType = z
     legendPosition: z.string().optional().default('right')
   })
   .transform((data) => {
+    // 设置innerRadius默认值
+    if (data.innerRadius === undefined) {
+      data.innerRadius = data.chartSubType === 'donut' ? 0.4 : 0;
+    }
+
     // 验证innerRadius范围
-    if (data.innerRadius !== undefined && (data.innerRadius < 0 || data.innerRadius > 0.8)) {
-      data.innerRadius = 0.4; // 设置为默认值
+    if (data.innerRadius < 0 || data.innerRadius > 0.8) {
+      data.innerRadius = data.chartSubType === 'donut' ? 0.4 : 0;
     }
 
     return {
@@ -151,18 +156,20 @@ class PieChartGenerator extends ChartGenerator {
       }));
 
       if (options.chartSubType === 'funnel') {
-        // 漏斗图配置
+        // 漏斗图配置 - 优化标签显示空间
+        const isOutsideLabel = options.labelPosition === 'outside';
         baseOption.series = [
           {
             type: 'funnel',
-            left: '10%',
-            width: '80%',
+            left: isOutsideLabel ? '20%' : '10%', // 外标签时增加左边距
+            width: isOutsideLabel ? '60%' : '80%', // 外标签时减少宽度为标签留空间
             height: '60%',
             top: '15%',
             data: pieData.sort((a, b) => b.value - a.value), // 漏斗图需要降序排列
             label: {
               show: options.labelPosition !== 'none',
               position: options.labelPosition === 'inside' ? 'inside' : 'right',
+              distance: isOutsideLabel ? 20 : 5, // 外标签增加距离
               formatter: (params: any) => {
                 let label = params.name;
                 if (options.showValue) label += `: ${params.value}`;
@@ -171,12 +178,19 @@ class PieChartGenerator extends ChartGenerator {
                   label += ` (${percentage}%)`;
                 }
                 return label;
-              }
+              },
+              fontSize: 12,
+              fontWeight: 'normal'
             },
             labelLine: {
               show: options.labelPosition === 'outside',
-              length: 30,
-              length2: 10
+              length: 15, // 减少连接线长度
+              length2: 5, // 减少第二段长度
+              smooth: false,
+              lineStyle: {
+                width: 1,
+                color: '#999'
+              }
             },
             itemStyle: {
               borderColor: '#fff',
@@ -187,8 +201,8 @@ class PieChartGenerator extends ChartGenerator {
       } else {
         // 普通饼图和环形图配置
         const radius =
-          options.chartSubType === 'donut'
-            ? [`${(options.innerRadius || 0.4) * 100}%`, '70%']
+          options.innerRadius && options.innerRadius > 0
+            ? [`${options.innerRadius * 100}%`, '70%']
             : '70%';
 
         baseOption.series = [

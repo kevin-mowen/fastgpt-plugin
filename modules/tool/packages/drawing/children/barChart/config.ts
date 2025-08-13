@@ -43,9 +43,11 @@ export default defineTool({
           valueType: WorkflowIOValueTypeEnum.arrayString,
           key: 'yAxis',
           label: 'Y轴数据',
-          description: 'Y轴数值数据，例如：[100, 200, 300]',
+          description:
+            'Y轴数值数据。普通柱状图：[100, 200, 300]；堆积柱状图：["100,80,60;120,90,70"]（分号分隔系列，逗号分隔数据）',
           required: true,
-          toolDescription: 'Y轴数值数据，例如：[100, 200, 300]，支持小范围大数值智能优化'
+          toolDescription:
+            'Y轴数值数据。普通柱状图：[100, 200, 300]；堆积柱状图：["100,80,60;120,90,70"]（分号分隔系列，逗号分隔数据），支持小范围大数值智能优化'
         },
         {
           renderTypeList: [FlowNodeInputTypeEnum.select, FlowNodeInputTypeEnum.reference],
@@ -116,10 +118,10 @@ export default defineTool({
           valueType: WorkflowIOValueTypeEnum.number,
           key: 'barWidth',
           label: '柱子宽度',
-          description: '设置柱子宽度比例（0.1-1.0）',
+          description: '设置柱子宽度，0.1-1.0为比例值，>1为像素值',
           required: false,
           defaultValue: 0.6,
-          toolDescription: '柱子宽度比例，0.1表示很细，1.0表示占满'
+          toolDescription: '柱子宽度：0.1-1.0表示比例（转换为像素），>1表示直接像素值，默认36px'
         },
         {
           renderTypeList: [FlowNodeInputTypeEnum.select, FlowNodeInputTypeEnum.reference],

@@ -151,7 +151,11 @@ class BarChartGenerator extends ChartGenerator {
               type: 'bar',
               stack: 'total',
               data: seriesData.split(',').map(Number),
-              barWidth: options.barWidth || 0.6,
+              barWidth: options.barWidth
+                ? options.barWidth <= 1.0
+                  ? `${Math.max(options.barWidth * 60, 15)}px`
+                  : options.barWidth
+                : '36px',
               itemStyle: { borderRadius: [2, 2, 0, 0] }
             }))
           : [
@@ -159,7 +163,11 @@ class BarChartGenerator extends ChartGenerator {
                 name: 'Data',
                 type: 'bar',
                 data: yAxis.map(Number),
-                barWidth: options.barWidth || 0.6,
+                barWidth: options.barWidth
+                  ? options.barWidth <= 1.0
+                    ? `${Math.max(options.barWidth * 60, 15)}px`
+                    : options.barWidth
+                  : '36px',
                 itemStyle: { borderRadius: [4, 4, 0, 0] }
               }
             ];
@@ -171,7 +179,11 @@ class BarChartGenerator extends ChartGenerator {
             name: 'Data',
             type: 'bar',
             data: yAxis.map(Number),
-            barWidth: options.barWidth || 0.6,
+            barWidth: options.barWidth
+              ? options.barWidth <= 1.0
+                ? `${Math.max(options.barWidth * 60, 15)}px`
+                : options.barWidth
+              : '36px',
             itemStyle: { borderRadius: [4, 4, 0, 0] }
           }
         ];

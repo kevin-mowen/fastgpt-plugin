@@ -78,10 +78,9 @@ export default defineTool({
           valueType: WorkflowIOValueTypeEnum.number,
           key: 'innerRadius',
           label: '内径大小',
-          description: '环形图的内径大小（0-0.8），仅环形图生效',
+          description: '内径大小（0-0.8），普通饼图默认0，环形图默认0.4',
           required: false,
-          defaultValue: 0.4,
-          toolDescription: '环形图内径比例，0表示普通饼图，0.4表示40%内径'
+          toolDescription: '内径比例，控制中心空洞大小，普通饼图默认0，环形图默认0.4'
         },
         {
           renderTypeList: [FlowNodeInputTypeEnum.switch, FlowNodeInputTypeEnum.reference],
