@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ChartGenerator, InputAdapter, applyStyleOptions } from '@tool/chart-core';
+import type { ChartType, ChartGenerateOptions } from '@tool/chart-core';
 
 export const InputType = z
   .object({
@@ -43,19 +44,10 @@ export const OutputType = z.object({
 class PieChartGenerator extends ChartGenerator {
   async generateChart(
     title: string = '',
-    categories: string[],
-    values: string[],
-    chartType: 'line' | 'bar' | 'pie',
-    options: {
-      chartSubType?: string;
-      innerRadius?: number;
-      showPercentage?: boolean;
-      showValue?: boolean;
-      labelPosition?: string;
-      colorScheme?: string;
-      chartSize?: string;
-      legendPosition?: string;
-    } = {}
+    xAxis: string[],
+    yAxis: string[],
+    chartType: ChartType,
+    options: ChartGenerateOptions = {}
   ) {
     // 确定图表尺寸
     const size =
@@ -71,7 +63,7 @@ class PieChartGenerator extends ChartGenerator {
     });
 
     // 生成基础配置
-    const baseOption = this.createBaseOption(title, categories, values, chartType, options);
+    const baseOption = this.createBaseOption(title, xAxis, yAxis, chartType, options);
 
     // 应用样式选项
     applyStyleOptions(baseOption, options);
@@ -104,17 +96,18 @@ class PieChartGenerator extends ChartGenerator {
         process.env.NODE_ENV === 'test'
           ? JSON.stringify(baseOption) // 在测试环境中不格式化JSON
           : JSON.stringify(baseOption, null, 2), // 在生产环境中格式化JSON
-      statistics: this.calculateStatistics(categories, values)
+      detection: null,
+      statistics: this.calculateStatistics(xAxis, yAxis)
     };
   }
 
   // 重写createBaseOption以支持饼图特定配置
   protected createBaseOption(
     title: string,
-    categories: string[],
-    values: string[],
-    chartType: 'line' | 'bar' | 'pie',
-    options: any
+    xAxis: string[],
+    yAxis: string[],
+    chartType: ChartType,
+    options: ChartGenerateOptions
   ) {
     const baseOption: any = {
       backgroundColor: '#ffffff',
@@ -145,11 +138,13 @@ class PieChartGenerator extends ChartGenerator {
     };
 
     if (chartType === 'pie') {
+      const categories = xAxis;
+      const values = yAxis;
       const numericValues = values.map(Number);
-      const total = numericValues.reduce((sum, val) => sum + val, 0);
+      const total = numericValues.reduce((sum: number, val: number) => sum + val, 0);
 
       // 构建饼图数据
-      const pieData = categories.map((name, index) => ({
+      const pieData = categories.map((name: string, index: number) => ({
         name,
         value: numericValues[index] || 0,
         total // 添加总数用于tooltip计算

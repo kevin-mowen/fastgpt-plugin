@@ -1,8 +1,9 @@
-import * as echarts from 'echarts';
+// ECharts will be dynamically imported
 import { uploadFile } from '@tool/utils/uploadFile';
 import { mockUploadFile } from './mockUpload';
-import { SmallRangeDetector, YAxisRange, SmallRangeDetection } from './detector';
-import { applyStyleOptions, getChartSize, StyleOptions } from './styles';
+import { SmallRangeDetector } from './detector';
+import type { YAxisRange } from './detector';
+import { applyStyleOptions, getChartSize } from './styles';
 
 // 重新导出相关类型和类
 export { SmallRangeDetector } from './detector';
@@ -23,6 +24,11 @@ export interface ChartGenerateOptions {
   sizeAxis?: string[]; // 散点图气泡大小数据
   indicators?: string[]; // 雷达图指标名称
   maxValues?: number[]; // 雷达图最大值
+  // 饼图特有选项
+  innerRadius?: number;
+  showPercentage?: boolean;
+  showValue?: boolean;
+  labelPosition?: string;
 }
 
 /**
@@ -56,6 +62,7 @@ export class ChartGenerator {
     // 确定图表尺寸
     const size = getChartSize(options.chartSize);
 
+    const echarts = await import('echarts');
     const chart = echarts.init(undefined, undefined, {
       renderer: 'svg',
       ssr: true,
@@ -66,8 +73,8 @@ export class ChartGenerator {
     // 生成基础配置
     const baseOption = this.createBaseOption(title, xAxis, yAxis, chartType, options);
 
-    // 处理小范围大数值问题 (散点图和雷达图不适用Y轴优化)
-    if (!['pie', 'radar', 'scatter'].includes(chartType) && options.yAxisRange) {
+    // 处理小范围大数值问题 (饼图和雷达图不适用Y轴优化)
+    if (!['pie', 'radar'].includes(chartType) && options.yAxisRange) {
       this.applyYAxisOptimization(baseOption, yAxis, options.yAxisRange);
     }
 
@@ -197,19 +204,41 @@ export class ChartGenerator {
         ];
         break;
 
-      case 'scatter':
+      case 'scatter': {
+        // 计算数据范围
+        const xNumeric = xAxis.map(Number);
+        const yNumeric = yAxis.map(Number);
+        const xMin = Math.min(...xNumeric);
+        const xMax = Math.max(...xNumeric);
+        const yMin = Math.min(...yNumeric);
+        const yMax = Math.max(...yNumeric);
+
         baseOption.xAxis = {
           type: 'value',
-          axisLabel: { rotate: 0 }
+          axisLabel: { rotate: 0 },
+          name: 'X轴',
+          nameLocation: 'middle',
+          nameGap: 30,
+          // 只有当最小值不是0时才显式设置，避免ECharts自动从0开始
+          ...(xMin !== 0 && { min: xMin }),
+          max: xMax
         };
-        baseOption.yAxis = { type: 'value' };
+        baseOption.yAxis = {
+          type: 'value',
+          name: 'Y轴',
+          nameLocation: 'middle',
+          nameGap: 40,
+          // 只有当最小值不是0时才显式设置，避免ECharts自动从0开始
+          ...(yMin !== 0 && { min: yMin }),
+          max: yMax
+        };
         baseOption.tooltip = {
           trigger: 'item',
-          formatter: (params: any) => {
-            if (options.sizeAxis && params.dataIndex < options.sizeAxis.length) {
-              return `${params.seriesName}<br/>${params.name}: (${params.data[0]}, ${params.data[1]}, ${options.sizeAxis[params.dataIndex]})`;
+          formatter: function (params: any) {
+            if (options.sizeAxis && options.sizeAxis.length > params.dataIndex) {
+              return `${params.seriesName}<br/>点${params.dataIndex + 1}: (${params.data[0]}, ${params.data[1]}, ${options.sizeAxis[params.dataIndex]})`;
             }
-            return `${params.seriesName}<br/>${params.name}: (${params.data[0]}, ${params.data[1]})`;
+            return `${params.seriesName}<br/>点${params.dataIndex + 1}: (${params.data[0]}, ${params.data[1]})`;
           }
         };
 
@@ -220,11 +249,12 @@ export class ChartGenerator {
               name: 'Data',
               type: 'scatter',
               data: yAxis.map((y, index) => [
-                Number(xAxis[index] || 0),
+                Number(xAxis[index] ?? 0),
                 Number(y),
-                Number(options.sizeAxis?.[index] || 10)
+                Number(options.sizeAxis?.[index] ?? 10)
               ]),
-              symbolSize: (data: number[]) => Math.sqrt(data[2] || 10) * 3
+              symbolSize: (data: number[]) => Math.sqrt(data[2] || 10) * 3,
+              animation: false // 禁用动画，确保气泡立即可见
             }
           ];
         } else {
@@ -233,12 +263,20 @@ export class ChartGenerator {
             {
               name: 'Data',
               type: 'scatter',
-              data: yAxis.map((y, index) => [Number(xAxis[index] || 0), Number(y)]),
-              symbolSize: 8
+              data: yAxis.map((y, index) => [Number(xAxis[index] ?? 0), Number(y)]),
+              symbolSize: 20,
+              symbol: 'circle',
+              itemStyle: {
+                opacity: 1,
+                borderWidth: 2,
+                borderColor: '#333'
+              },
+              animation: false // 禁用动画，确保散点立即可见
             }
           ];
         }
         break;
+      }
 
       case 'radar':
         // 雷达图配置

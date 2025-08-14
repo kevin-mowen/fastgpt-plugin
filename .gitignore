@@ -7,3 +7,4 @@ node_modules
 public/imgs/tools/
 .local
 pnpm-lock.yaml
+fastgpt-plugins-v0.1.9.0.tar

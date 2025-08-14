@@ -8,6 +8,9 @@ describe('pieChart tool', () => {
       categories: ['产品A', '产品B', '产品C', '产品D'],
       values: ['25', '30', '20', '25'],
       chartSubType: 'normal',
+      showPercentage: true,
+      showValue: false,
+      labelPosition: 'outside',
       colorScheme: 'blue',
       chartSize: 'medium',
       legendPosition: 'bottom'
@@ -25,6 +28,9 @@ describe('pieChart tool', () => {
       values: ['40', '35', '25'],
       chartSubType: 'donut',
       innerRadius: 0.5,
+      showPercentage: true,
+      showValue: false,
+      labelPosition: 'outside',
       colorScheme: 'green',
       chartSize: 'large',
       legendPosition: 'right'
@@ -42,6 +48,9 @@ describe('pieChart tool', () => {
       categories: ['A', 'B', 'C'],
       values: ['10', '20', '30'],
       chartSubType: 'normal',
+      showPercentage: true,
+      showValue: false,
+      labelPosition: 'outside',
       colorScheme: 'warm',
       chartSize: 'small',
       legendPosition: 'top'
@@ -59,6 +68,9 @@ describe('pieChart tool', () => {
       categories: ['X', 'Y'],
       values: ['50', '50'],
       chartSubType: 'normal',
+      showPercentage: true,
+      showValue: false,
+      labelPosition: 'outside',
       colorScheme: 'purple',
       chartSize: 'medium',
       legendPosition: 'left'
