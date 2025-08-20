@@ -40,6 +40,27 @@ addLog.info('Worker Build complete');
 await Promise.all(tools.map((tool) => buildATool(tool)));
 addLog.info('Tools Build complete');
 
+// 复制模板文件
+const copyTemplates = async () => {
+  const templatesDir = path.join(
+    __dirname,
+    '..',
+    'modules',
+    'tool',
+    'packages',
+    'markdownTransform',
+    'templates'
+  );
+  const distTemplatesDir = path.join(distDir, 'templates');
+
+  if (fs.existsSync(templatesDir)) {
+    await $`cp -r ${templatesDir} ${distTemplatesDir}`;
+    addLog.info('Templates copied');
+  }
+};
+
+await copyTemplates();
+
 const publicImgsDir = path.join(__dirname, '..', 'dist', 'public', 'imgs', 'tools');
 const copiedCount = await copyToolIcons({
   toolsDir,
