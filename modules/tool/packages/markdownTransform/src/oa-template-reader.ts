@@ -53,7 +53,28 @@ export class OATemplateReader {
   private isLoaded = false;
 
   constructor(templatePath?: string) {
-    this.templatePath = templatePath || path.join(__dirname, '../../templates/oa_template.docx');
+    if (templatePath) {
+      this.templatePath = templatePath;
+    } else {
+      // 尝试多个可能的路径来适应不同环境
+      const possiblePaths = [
+        path.join(__dirname, '../../templates/oa_template.docx'), // 开发环境
+        path.join(process.cwd(), 'dist/templates/oa_template.docx'), // 生产环境
+        path.join(process.cwd(), 'templates/oa_template.docx'), // 备用路径
+        path.join(__dirname, 'templates/oa_template.docx') // 同级目录
+      ];
+
+      this.templatePath =
+        possiblePaths.find((p) => require('fs').existsSync(p)) || possiblePaths[0];
+
+      // 记录使用的模板路径以便调试
+      console.log(
+        '📄 OA模板路径:',
+        this.templatePath,
+        '存在:',
+        require('fs').existsSync(this.templatePath)
+      );
+    }
   }
 
   /**
@@ -329,6 +350,13 @@ export class OATemplateReader {
   }
 
   /**
+   * 获取模板文件路径
+   */
+  getTemplatePath(): string {
+    return this.templatePath;
+  }
+
+  /**
    * 检查是否已加载
    */
   private ensureLoaded(): void {
@@ -342,8 +370,19 @@ export class OATemplateReader {
    */
   static exists(templatePath?: string): boolean {
     try {
-      const finalPath = templatePath || path.join(__dirname, '../../templates/oa_template.docx');
-      return require('fs').existsSync(finalPath);
+      if (templatePath) {
+        return require('fs').existsSync(templatePath);
+      }
+
+      // 尝试多个可能的路径来适应不同环境
+      const possiblePaths = [
+        path.join(__dirname, '../../templates/oa_template.docx'), // 开发环境
+        path.join(process.cwd(), 'dist/templates/oa_template.docx'), // 生产环境
+        path.join(process.cwd(), 'templates/oa_template.docx'), // 备用路径
+        path.join(__dirname, 'templates/oa_template.docx') // 同级目录
+      ];
+
+      return possiblePaths.some((p) => require('fs').existsSync(p));
     } catch {
       return false;
     }

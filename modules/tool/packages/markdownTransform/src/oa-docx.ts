@@ -774,10 +774,8 @@ export async function oaDocxTool(
     }
   }
 
-  const defaultTemplatePath = path.join(__dirname, '../../templates/oa_template.docx');
-
-  // 检查模板文件是否存在
-  if (!OATemplateReader.exists(defaultTemplatePath)) {
+  // 检查模板文件是否存在（使用自动路径解析）
+  if (!OATemplateReader.exists()) {
     console.warn(`⚠️ ${t('TEMPLATE_NOT_FOUND')}`);
     // 降级到普通DOCX转换
     const { docxTool } = await import('./docx');
@@ -792,7 +790,7 @@ export async function oaDocxTool(
 
     if (!reader) {
       console.log(`📋 ${t('TEMPLATE_LOADING')}`);
-      reader = await createOATemplateReader(defaultTemplatePath);
+      reader = await createOATemplateReader();
       if (cacheConfig.enabled) {
         cachedReader = reader;
       }
@@ -894,7 +892,7 @@ export async function oaDocxTool(
     const newZip = new PizZip(docBuffer);
 
     // 读取模板的 styles.xml（必须存在）
-    const templateBin = fs.readFileSync(defaultTemplatePath);
+    const templateBin = fs.readFileSync(reader.getTemplatePath());
     const templateZip = new PizZip(templateBin);
     const templateStyles = templateZip.file('word/styles.xml')?.asText();
 
