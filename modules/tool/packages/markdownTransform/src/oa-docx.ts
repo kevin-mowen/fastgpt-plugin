@@ -774,7 +774,7 @@ export async function oaDocxTool(
     }
   }
 
-  const defaultTemplatePath = path.join(__dirname, '../templates/oa_template.docx');
+  const defaultTemplatePath = path.join(__dirname, '../../templates/oa_template.docx');
 
   // 检查模板文件是否存在
   if (!OATemplateReader.exists(defaultTemplatePath)) {

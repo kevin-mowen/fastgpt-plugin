@@ -53,7 +53,7 @@ export class OATemplateReader {
   private isLoaded = false;
 
   constructor(templatePath?: string) {
-    this.templatePath = templatePath || path.join(__dirname, '../oa_template.docx');
+    this.templatePath = templatePath || path.join(__dirname, '../../templates/oa_template.docx');
   }
 
   /**
@@ -342,7 +342,7 @@ export class OATemplateReader {
    */
   static exists(templatePath?: string): boolean {
     try {
-      const finalPath = templatePath || path.join(__dirname, '../oa_template.docx');
+      const finalPath = templatePath || path.join(__dirname, '../../templates/oa_template.docx');
       return require('fs').existsSync(finalPath);
     } catch {
       return false;
