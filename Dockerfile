@@ -16,9 +16,9 @@ COPY bun.lockb* ./
 # 安装npm和bun
 RUN npm install -g bun
 
-# 安装依赖
+# 安装依赖 (使用legacy-peer-deps解决冲突)
 RUN npm config set registry https://registry.npmmirror.com && \
-    npm install
+    npm install --legacy-peer-deps
 
 # 复制源代码
 COPY . .
