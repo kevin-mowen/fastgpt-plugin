@@ -31,7 +31,6 @@ RUN addgroup -g 1001 -S nodejs && \
 # 复制构建产物
 COPY --from=builder --chown=nodejs:nodejs /app/dist/ ./dist/
 COPY --from=builder --chown=nodejs:nodejs /app/dist/public/ ./public/
-COPY --from=builder --chown=nodejs:nodejs /app/.env.template ./.env.template
 
 # 设置环境变量
 ENV NODE_ENV=production
