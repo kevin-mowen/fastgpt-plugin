@@ -23,6 +23,9 @@ RUN npm config set registry https://registry.npmmirror.com && \
 # 复制源代码
 COPY . .
 
+# 安装所有工具的依赖
+RUN find modules/tool/packages -name "package.json" -execdir npm install --registry=https://registry.npmmirror.com --legacy-peer-deps \; || echo "Some tool dependencies failed, continuing..."
+
 # 构建应用
 RUN bun run build:no-tsc
 
