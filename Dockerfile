@@ -1,10 +1,15 @@
 # --------- builder -----------
-FROM alpine:3.20 AS builder
+FROM ubuntu:22.04 AS builder
 WORKDIR /app
 
 # 安装Node.js, npm和bun
-RUN apk add --no-cache nodejs npm && \
-    npm install -g bun
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g bun && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # 复制所有文件
 COPY . .
@@ -22,17 +27,21 @@ RUN mkdir -p dist && \
 RUN bun ./scripts/build.ts || echo "Tool build failed, continuing..."
 
 # --------- runner -----------
-FROM alpine:3.20 AS runner
+FROM ubuntu:22.04 AS runner
 WORKDIR /app
 
 # 安装系统依赖
-RUN apk add --no-cache \
-    nodejs curl ca-certificates dumb-init \
-    && update-ca-certificates
+RUN apt-get update && \
+    apt-get install -y curl ca-certificates dumb-init && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    update-ca-certificates
 
 # 创建非root用户
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN groupadd -g 1001 nodejs && \
+    useradd -r -u 1001 -g nodejs nodejs
 
 # 复制构建产物
 COPY --from=builder --chown=nodejs:nodejs /app/dist/ ./dist/
