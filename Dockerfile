@@ -1,20 +1,17 @@
-# 使用国内镜像源 - 网易云镜像
-FROM hub-mirror.c.163.com/library/node:20-slim
+# 使用阿里云公开镜像
+FROM registry.cn-hangzhou.aliyuncs.com/library/node:20-alpine
 
 WORKDIR /app
 
-# 安装运行时依赖
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# 安装运行时依赖 (Alpine使用apk)
+RUN apk add --no-cache \
     curl \
     ca-certificates \
-    dumb-init && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    dumb-init
 
-# 创建非root用户
-RUN groupadd --gid 1001 nodejs && \
-    useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nodejs
+# 创建非root用户 (Alpine语法)
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
 
 # 复制预构建的产物（需要本地先运行 bun run build）
 COPY --chown=nodejs:nodejs ./dist/ ./dist/
