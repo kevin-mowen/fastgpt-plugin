@@ -1,5 +1,5 @@
-# 使用阿里云公开镜像
-FROM registry.cn-hangzhou.aliyuncs.com/library/node:20-alpine
+# 使用原始Docker Hub镜像 - 有时能成功
+FROM node:22-alpine
 
 WORKDIR /app
 
