@@ -5,8 +5,8 @@ WORKDIR /app
 # 安装必要的构建工具
 RUN apk add --no-cache nodejs npm
 
-# 复制包管理文件
-COPY package.json bun.lockb* ./
+# 复制所有文件
+COPY . .
 
 # 安装依赖
 RUN --mount=type=cache,target=/root/.bun \
@@ -14,9 +14,6 @@ RUN --mount=type=cache,target=/root/.bun \
         bun i --registry https://registry.npmmirror.com && break || \
         (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
     done
-
-# 复制源代码
-COPY . .
 
 # 手动构建，避免路径问题
 RUN bun build --env=disable --outfile=dist/index.js --target=node --minify ./src/index.ts && \
