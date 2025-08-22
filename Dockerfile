@@ -1,15 +1,16 @@
 # --------- builder -----------
-FROM registry.cn-hangzhou.aliyuncs.com/ecs/bun:1.2-alpine AS builder
+FROM oven/bun:1.2-alpine AS builder
 WORKDIR /app
 
 # 复制源代码
 COPY . .
 
 # 安装依赖 - 添加镜像源配置和更好的重试机制
+# 配置npm镜像源（针对阿里云优化）
+RUN npm config set registry https://registry.npmmirror.com
+
+# 安装依赖
 RUN --mount=type=cache,target=/root/.bun \
-    # 配置npm镜像源
-    npm config set registry https://registry.npmmirror.com && \
-    # 重试安装依赖
     for i in $(seq 1 5); do \
         bun i && break || \
         (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
@@ -19,7 +20,7 @@ RUN --mount=type=cache,target=/root/.bun \
 RUN bun run build
 
 # --------- runner -----------
-FROM registry.cn-hangzhou.aliyuncs.com/ecs/node:22-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 # 安装系统依赖
