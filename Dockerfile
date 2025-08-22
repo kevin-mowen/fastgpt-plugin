@@ -1,5 +1,5 @@
-# 直接使用运行时镜像，本地预构建
-FROM node:20-slim
+# 使用国内镜像源 - 网易云镜像
+FROM hub-mirror.c.163.com/library/node:20-slim
 
 WORKDIR /app
 
