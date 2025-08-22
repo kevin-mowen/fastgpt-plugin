@@ -1,5 +1,5 @@
 # --------- builder -----------
-FROM node:22-alpine AS builder
+FROM registry.cn-hangzhou.aliyuncs.com/library/node:22-alpine AS builder
 WORKDIR /app
 
 # 安装bun
@@ -21,7 +21,7 @@ RUN mkdir -p dist && \
 RUN bun ./scripts/build.ts || echo "Tool build failed, continuing..."
 
 # --------- runner -----------
-FROM node:22-alpine AS runner
+FROM registry.cn-hangzhou.aliyuncs.com/library/node:22-alpine AS runner
 WORKDIR /app
 
 # 安装系统依赖
