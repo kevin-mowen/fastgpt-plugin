@@ -1,9 +1,10 @@
 # --------- builder -----------
-FROM registry.cn-hangzhou.aliyuncs.com/library/node:22-alpine AS builder
+FROM alpine:3.20 AS builder
 WORKDIR /app
 
-# 安装bun
-RUN npm install -g bun
+# 安装Node.js, npm和bun
+RUN apk add --no-cache nodejs npm && \
+    npm install -g bun
 
 # 复制所有文件
 COPY . .
@@ -21,12 +22,12 @@ RUN mkdir -p dist && \
 RUN bun ./scripts/build.ts || echo "Tool build failed, continuing..."
 
 # --------- runner -----------
-FROM registry.cn-hangzhou.aliyuncs.com/library/node:22-alpine AS runner
+FROM alpine:3.20 AS runner
 WORKDIR /app
 
 # 安装系统依赖
 RUN apk add --no-cache \
-    curl ca-certificates dumb-init \
+    nodejs curl ca-certificates dumb-init \
     && update-ca-certificates
 
 # 创建非root用户
