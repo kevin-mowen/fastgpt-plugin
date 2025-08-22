@@ -1,5 +1,5 @@
 # --------- builder -----------
-FROM ubuntu:22.04 AS builder
+FROM registry.cn-hangzhou.aliyuncs.com/fastgpt/mongo:5.0.18 AS builder
 WORKDIR /app
 
 # 安装Node.js, npm和bun
@@ -27,7 +27,7 @@ RUN mkdir -p dist && \
 RUN bun ./scripts/build.ts || echo "Tool build failed, continuing..."
 
 # --------- runner -----------
-FROM ubuntu:22.04 AS runner
+FROM registry.cn-hangzhou.aliyuncs.com/fastgpt/mongo:5.0.18 AS runner
 WORKDIR /app
 
 # 安装系统依赖
