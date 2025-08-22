@@ -30,8 +30,9 @@ RUN apk add --no-cache curl ca-certificates dumb-init
 COPY --from=builder /app/package*.json ./
 RUN npm install --omit=dev --legacy-peer-deps --registry=https://registry.npmmirror.com || true
 
-# 复制已编译产物
+# 复制已编译产物和必需的模块目录
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/modules ./modules
 
 # 创建非 root 用户并赋权
 RUN addgroup -g 1001 -S nodejs \
