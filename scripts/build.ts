@@ -54,7 +54,12 @@ const copyTemplates = async () => {
   const distTemplatesDir = path.join(distDir, 'templates');
 
   if (fs.existsSync(templatesDir)) {
-    await $`cp -r ${templatesDir} ${distTemplatesDir}`;
+    // 递归复制目录 - 兼容Windows和Unix
+    if (process.platform === 'win32') {
+      await $`xcopy /E /I /H /Y ${templatesDir} ${distTemplatesDir}`;
+    } else {
+      await $`cp -r ${templatesDir} ${distTemplatesDir}`;
+    }
     addLog.info('Templates copied');
   }
 };
