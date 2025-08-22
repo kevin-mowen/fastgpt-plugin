@@ -1,26 +1,24 @@
 # --------- builder -----------
-FROM oven/bun:1.2-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
-# 安装必要的构建工具
-RUN apk add --no-cache nodejs npm
+# 安装bun
+RUN npm install -g bun
 
 # 复制所有文件
 COPY . .
 
 # 安装依赖
-RUN --mount=type=cache,target=/root/.bun \
-    for i in $(seq 1 5); do \
-        bun i --registry https://registry.npmmirror.com && break || \
-        (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
-    done
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install
 
-# 手动构建，避免路径问题
-RUN bun build --env=disable --outfile=dist/index.js --target=node --minify ./src/index.ts && \
-    bun build --env=disable --outfile=dist/worker.js --target=node --minify ./src/worker/worker.ts
-    
-# 构建工具
-RUN bun ./scripts/build.ts || echo "Some tools failed to build, continuing..."
+# 直接构建主要文件，避免复杂的构建脚本
+RUN mkdir -p dist && \
+    bun build --outfile=dist/index.js --target=node ./src/index.ts && \
+    bun build --outfile=dist/worker.js --target=node ./src/worker/worker.ts
+
+# 构建工具（允许失败）
+RUN bun ./scripts/build.ts || echo "Tool build failed, continuing..."
 
 # --------- runner -----------
 FROM node:22-alpine AS runner
