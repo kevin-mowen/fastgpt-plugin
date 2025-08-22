@@ -1,5 +1,5 @@
-# 使用中科大镜像源 - 国内最稳定的开源镜像
-FROM docker.mirrors.ustc.edu.cn/library/node:22-alpine
+# 直接使用Docker Hub官方镜像
+FROM node:22-alpine
 
 WORKDIR /app
 
