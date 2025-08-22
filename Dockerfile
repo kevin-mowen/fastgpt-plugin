@@ -5,14 +5,10 @@ WORKDIR /app
 # 复制源代码
 COPY . .
 
-# 安装依赖 - 添加镜像源配置和更好的重试机制
-# 配置npm镜像源（针对阿里云优化）
-RUN npm config set registry https://registry.npmmirror.com
-
 # 安装依赖
 RUN --mount=type=cache,target=/root/.bun \
     for i in $(seq 1 5); do \
-        bun i && break || \
+        bun i --registry https://registry.npmmirror.com && break || \
         (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
     done
 
