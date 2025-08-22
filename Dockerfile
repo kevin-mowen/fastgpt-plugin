@@ -1,21 +1,37 @@
-# 使用原始Docker Hub镜像 - 有时能成功
+# 使用原始Docker Hub镜像
 FROM node:22-alpine
 
 WORKDIR /app
 
-# 安装运行时依赖 (Alpine使用apk)
+# 安装构建依赖
 RUN apk add --no-cache \
     curl \
     ca-certificates \
     dumb-init
 
-# 创建非root用户 (Alpine语法)
+# 复制源码和配置文件
+COPY package*.json ./
+COPY bun.lockb* ./
+
+# 安装npm和bun
+RUN npm install -g bun
+
+# 安装依赖
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install
+
+# 复制源代码
+COPY . .
+
+# 构建应用
+RUN bun run build:no-tsc
+
+# 创建非root用户
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 -G nodejs
 
-# 复制预构建的产物（需要本地先运行 bun run build）
-COPY --chown=nodejs:nodejs ./dist/ ./dist/
-COPY --chown=nodejs:nodejs ./package.json ./package.json
+# 设置文件权限
+RUN chown -R nodejs:nodejs /app
 
 # 设置环境变量
 ENV NODE_ENV=production
